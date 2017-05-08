@@ -139,8 +139,9 @@ public final class OpenSsl {
                         } catch (Throwable ignore) {
                             logger.debug("Hostname Verification not supported.");
                         }
+                        SelfSignedCertificate cert = null;
                         try {
-                            SelfSignedCertificate cert = new SelfSignedCertificate();
+                            cert = new SelfSignedCertificate();
                             certBio = ReferenceCountedOpenSslContext.toBIO(cert.cert());
                             SSL.setCertificateChainBio(ssl, certBio, false);
                             supportsKeyManagerFactory = true;
@@ -157,6 +158,10 @@ public final class OpenSsl {
                             }
                         } catch (Throwable ignore) {
                             logger.debug("KeyManagerFactory not supported.");
+                        } finally {
+                            if (cert != null) {
+                                cert.delete();
+                            }
                         }
                     } finally {
                         SSL.freeSSL(ssl);
